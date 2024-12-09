@@ -4,7 +4,13 @@ name: Deoploy to Server
 on:
     push:
       branches:
-        - 'master'
+        - master
+
+permissions:
+    actions: write
+    contents: write
+    deployments: write
+  
 jobs:
   build-releases:
     name: Release Go Binary
