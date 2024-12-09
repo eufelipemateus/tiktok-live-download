@@ -31,10 +31,10 @@ jobs:
         run:  docker login -u "adminuser" -p "${{secrets.DOCKER_TOKEN}}"  vps.fm32.com.br
             
       - name: Build docker 
-        run:  docker build -t  ${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.event.release.tag_name }}  -f ./docker/Dockerfile .
+        run:  docker build -t  ${{ github.repository_owner }}/${{ github.event.repository.name }}:${{github.run_number}} -f ./docker/Dockerfile .
 
       - name: Add Registry
-        run:  docker tag  ${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.event.release.tag_name }} vps.fm32.com.br/${{ github.event.repository.name }}
+        run:  docker tag  ${{ github.repository_owner }}/${{ github.event.repository.name }}:${{github.run_number}} vps.fm32.com.br/${{ github.event.repository.name }}
 
       - name: Push docker 
         run:  docker push   vps.fm32.com.br/${{ github.event.repository.name }} # tag ${{ github.head_ref || github.ref_name }} 
