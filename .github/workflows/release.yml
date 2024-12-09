@@ -1,0 +1,69 @@
+
+name: Deoploy to Server
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-releases:
+    name: Release Go Binary
+    runs-on: ubuntu-latest'
+    strategy:
+      matrix:
+        goos: [linux]
+        goarch: [amd64]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.2'
+
+      
+      - name: Create Credentials
+        run: |
+          echo "${{ secrets.CREDENTIALS }}" > ~/credentials.json
+        
+              
+      - name: Login Docker 
+        run:  docker login -u "adminuser" -p "${{secrets.DOCKER_TOKEN}}"  vps.fm32.com.br
+            
+      - name: Build docker 
+        run:  docker build -t  ${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.event.release.tag_name }}  -f ./docker/Dockerfile .
+
+      - name: Add Registry
+        run:  docker tag  ${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.event.release.tag_name }} vps.fm32.com.br/${{ github.event.repository.name }}
+
+      - name: Push docker 
+        run:  docker push   vps.fm32.com.br/${{ github.event.repository.name }} # tag ${{ github.head_ref || github.ref_name }} 
+
+  deploy:
+    name: Deploy to Server
+    needs: build-releases
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: Write SSH keys
+        run: |
+              install -m 600 -D /dev/null ~/.ssh/id_rsa
+              echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+              ssh-keyscan -H ${{secrets.SSH_HOST}} > ~/.ssh/known_hosts
+
+      - name: Restart Apps
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{secrets.WORK_DIR}}
+            sudo docker login -u "adminuser" -p "${{secrets.DOCKER_TOKEN}}"  vps.fm32.com.br
+            sudo docker rm $(sudo docker stop $(sudo docker ps -aqf "name=${{ github.event.repository.name }}")) -f
+            sudo docker image rm vps.fm32.com.br/${{ github.event.repository.name }} -f
+            sudo docker pull vps.fm32.com.br/${{ github.event.repository.name }}
+            sudo docker run --restart=always --network=host -dp 127.0.0.1:${{secrets.API_PORT}}:${{secrets.API_PORT}} \
+              --name ${{ github.event.repository.name }} \
+              -v  ${{secrets.WORK_DIR}}:/app \
+              vps.fm32.com.br/${{ github.event.repository.name }}
