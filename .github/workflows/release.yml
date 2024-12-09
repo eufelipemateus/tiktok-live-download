@@ -2,9 +2,9 @@
 name: Deoploy to Server
 
 on:
-  release:
-    types: [created]
-
+    push:
+      branches:
+        - 'master'
 jobs:
   build-releases:
     name: Release Go Binary
