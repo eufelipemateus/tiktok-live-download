@@ -5,3 +5,6 @@ go-video
 credentials.json
 
 logo.png
+
+lives.txt
+token.json

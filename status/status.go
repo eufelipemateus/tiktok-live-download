@@ -13,7 +13,7 @@ import (
 func IsLiveOffline(url string) (bool, error) {
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
-		chromedp.Flag("headless", true),                       // Executar no modo headless
+		chromedp.Flag("headless", true),                        // Executar no modo headless
 		chromedp.Flag("disable-gpu", true),                     // Desativar GPU
 		chromedp.Flag("blink-settings", "imagesEnabled=false"), // Desativa imagens
 	)
@@ -26,7 +26,7 @@ func IsLiveOffline(url string) (bool, error) {
 	defer cancel()
 
 	// Configurando o timeout
-	timeoutCtx, cancel := context.WithTimeout(ctx, 1*time.Minute)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()
 
 	// Variável para armazenar o texto extraído
@@ -42,7 +42,9 @@ func IsLiveOffline(url string) (bool, error) {
 		return false, err
 	}
 
-	return getStatusLive(pageContent) == 4, nil // Live está online ou não foi encontrado o texto
+	status := getStatusLive(pageContent)
+
+	return (status == 4 || status == 3), nil // Live está online ou não foi encontrado o texto
 }
 
 func getStatusLive(metada string) int {

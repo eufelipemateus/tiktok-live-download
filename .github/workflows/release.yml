@@ -65,7 +65,7 @@ jobs:
             sudo docker rm $(sudo docker stop $(sudo docker ps -aqf "name=${{ github.event.repository.name }}")) -f
             sudo docker image rm vps.fm32.com.br/${{ github.event.repository.name }} -f
             sudo docker pull vps.fm32.com.br/${{ github.event.repository.name }}
-            sudo docker run --restart=always --network=host -dp 127.0.0.1:${{secrets.API_PORT}}:${{secrets.API_PORT}} \
+            sudo docker run --restart=always -d \
               --name ${{ github.event.repository.name }} \
               -v  ${{secrets.WORK_DIR}}:/app \
               vps.fm32.com.br/${{ github.event.repository.name }}

@@ -2,7 +2,10 @@ module github.com/eufelipemateus/go-video
 
 go 1.23.2
 
-require github.com/u2takey/ffmpeg-go v0.5.0
+require (
+	github.com/u2takey/ffmpeg-go v0.5.0
+	golang.org/x/oauth2 v0.24.0
+)
 
 require (
 	cloud.google.com/go/auth v0.11.0 // indirect
@@ -34,7 +37,6 @@ require (
 	go.uber.org/ratelimit v0.3.1 // indirect
 	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/oauth2 v0.24.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241118233622-e639e219e697 // indirect

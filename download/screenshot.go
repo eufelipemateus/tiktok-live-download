@@ -15,6 +15,7 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/eufelipemateus/go-video/interfaces"
+	"github.com/eufelipemateus/go-video/utils"
 	"github.com/eufelipemateus/go-video/youtube"
 	"github.com/steampoweredtaco/gotiktoklive"
 	ffmpeg_go "github.com/u2takey/ffmpeg-go"
@@ -45,10 +46,11 @@ func GetVideo(url string) {
 
 	username := getUsernameFromURL(url)
 
+	//filename := fmt.Sprintf("%s-%d-%02d-%02d-%02d%02d%02d", username, startTime.Year(), startTime.Month(), startTime.Day(), startTime.Hour(), startTime.Minute(), startTime.Second())
 	filename := fmt.Sprintf("%s-%d-%02d-%02d", username, startTime.Year(), startTime.Month(), startTime.Day())
 
 	outputFileVideo := fmt.Sprintf("%s/%s.mp4", distFolder, filename)
-//	outputFileChat := fmt.Sprintf("%s/%s.txt", distFolder, filename)
+	outputFileChat := fmt.Sprintf("%s/%s.txt", distFolder, filename)
 
 	// Navegar para a página uma única vez
 	err := chromedp.Run(timeoutCtx,
@@ -60,66 +62,24 @@ func GetVideo(url string) {
 		log.Fatal(err)
 	}
 
-//	urlVideoRaw := getURLVideoRaw(sigiState)
-
-	/*
-		// Criar a pasta de saída para os frames, caso ainda não exista
-		outputDir := "frames"
-		err = os.WriteFile(outputDir+"/.keep", []byte(""), 0755) // criar diretório se não existir
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Capturar os frames de forma mais rápida
-		for i := 0; i < numFrames; i++ {
-			var buf []byte
-
-			// Captura de tela do elemento, sem repetir a navegação
-			err := chromedp.Run(timeoutCtx,
-				chromedp.Screenshot(`[data-e2e="live-room-content"]`, &buf, chromedp.ByQuery), // Captura o screenshot do elemento
-			)
-			if err != nil {
-				log.Println(err)
-			}
-
-			// Decodificar a captura de tela (base64)
-			img, err := base64.StdEncoding.DecodeString(base64.StdEncoding.EncodeToString(buf))
-			if err != nil {
-				log.Println(err)
-			}
-
-			// Salvar a captura de tela em um arquivo numerado
-			// Enviar a imagem para o FFmpeg
-			fileName := fmt.Sprintf("%s/frame_%03d.png", outputDir, i+1)
-			err = os.WriteFile(fileName, img, 0644)
-			if err != nil {
-				log.Println(err)
-			}
-
-			//fmt.Printf("Captura de tela %d salva como %s\n", i+1, fileName)
-
-			// Pausa mínima entre capturas para evitar sobrecarga (50ms)
-			time.Sleep(intervalo)
-		}
-				fmt.Println("Capturas de tela concluídas. Use o ffmpeg para criar o vídeo.")*/
+	urlVideoRaw := getURLVideoRaw(sigiState)
 
 	startTime = time.Now()
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-/*	go downloadVideo(urlVideoRaw, outputFileVideo, &wg)
+	go downloadVideo(urlVideoRaw, outputFileVideo, &wg)
 	os.Remove(outputFileChat)
 
 	go getChat(username, outputFileChat, &wg)
 
 	wg.Wait()
-*/
+
 	//os.Remove(outputFinalFile)
 	// GenerateVideoFinal(outputFileVideo, outputFinalFile, outputFileChat)
 
-
 	title := fmt.Sprintf("Live @%s - %s", username, startTime.Format("02/01/2006"))
-	youtube.UploadVideo(outputFileVideo,  title, "Live TikTok")
+	youtube.UploadVideo(outputFileVideo, title, "Live TikTok")
 
 }
 func getURLVideoRaw(metada string) string {
@@ -161,7 +121,8 @@ func getChat(username string, filePath string, wg *sync.WaitGroup) {
 
 	tiktok, err := gotiktoklive.NewTikTok()
 	if err != nil {
-		panic(err)
+		log.Printf("Erro ao criar o cliente TikTok: %s%v%s\n", utils.Colors.Red, err, utils.Colors.Reset)
+		return
 	}
 	// Track a TikTok user by username
 	live, err := tiktok.TrackUser(username)
