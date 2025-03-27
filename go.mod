@@ -50,7 +50,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.3
-	github.com/steampoweredtaco/gotiktoklive v1.0.7
+	github.com/steampoweredtaco/gotiktoklive v0.0.0-20241214235122-6d5c84da6c77
 	github.com/u2takey/go-utils v0.3.1 // indirect
 	google.golang.org/api v0.210.0
 )

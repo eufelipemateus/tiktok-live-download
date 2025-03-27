@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  tor:
+    image: dperson/torproxy
+    container_name: tor_proxy
+    restart: unless-stopped
+    ports:
+      - "9050:9050"  # Porta do proxy SOCKS5
+    environment:
+      - USER=nobody
+      - GROUP=nogroup
+
+
+  tiktok_live_donwloader:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: tiktok_live_downloader
+    restart: unless-stopped
+    depends_on:
+      - tor
+    environment:
+      - TOR_PROXY=tor_proxy
+    volumes:
+      - ./build:/app/build
